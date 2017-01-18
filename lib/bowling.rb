@@ -2,6 +2,7 @@ class Bowling
   
   def initialize
     @total_score = 0
+    @calc_frame = []
     
     @scores = [] # [ [1, 5], [2, 5], [9, 1], [1, 0] ... ]
     
@@ -24,18 +25,26 @@ class Bowling
   
   def calc_score
     @scores.each.with_index do |score, i|
-      if strike?(score) && not_last_frame?(i)
-        @total_score += 10 + calc_strike_bonus(i)
-      elsif spare?(score) && not_last_frame?(i)
-        @total_score += 10 + calc_spare_bonus(i)
-      else
-        @total_score += score.inject(:+)
-      end
-
+      @total_score += score.inject(:+) + bonus_point(i)
+      @calc_frame << @total_score
     end
   end
   
+  def frame_score(frame)
+    @calc_frame[frame - 1]
+  end
+  
   private
+
+  def bonus_point(index)
+    if strike?(@scores[index]) && not_last_frame?(index)
+      calc_strike_bonus(index)
+    elsif spare?(@scores[index]) && not_last_frame?(index)
+      calc_spare_bonus(index)
+    else
+      0
+    end
+  end
 
   def strike?(score)
     score.first == 10
